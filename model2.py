@@ -125,28 +125,28 @@ class Car:
         # Filter only cars **inside the crossroad area (within 50m of the center)**
         cars_in_crossroad = [
             car for car in other_cars if
-            abs(car.x - CENTER_X) <= CROSSROAD_RANGE or abs(car.y - CENTER_Y) <= CROSSROAD_RANGE
+            abs(car.x - CENTER_X) <= CROSSROAD_RANGE
         ]
 
         # 🚗 **Going Straight (destination = same as direction)**
         if self.destination == self.direction:
-            if self.direction == Direction.RIGHT:
-                return True  # ✅ Right → Right is always free
             if self.direction == Direction.LEFT:
+                return True  # ✅ Right → Right is always free
+            if self.direction == Direction.RIGHT:
                 # 🚦 Left → Left must check Bottom → Right
                 return not any(
-                    car.direction == Direction.BOTTOM and car.destination == Destination.RIGHT and car.y >= CENTER_Y
+                    car.direction == Direction.TOP
                     for car in cars_in_crossroad
                 )
 
         # 🔽 **Turning Bottom**
         if self.destination == Destination.BOTTOM:
-            if self.direction == Direction.LEFT:
-                return True  # ✅ Left → Bottom is always free
             if self.direction == Direction.RIGHT:
+                return True  # ✅ Left → Bottom is always free
+            if self.direction == Direction.LEFT:
                 # 🚦 Right → Bottom must check Left → Right
                 return not any(
-                    car.direction == Direction.LEFT and car.destination == Direction.LEFT and car.x <= CENTER_X
+                    car.direction == Direction.RIGHT
                     for car in cars_in_crossroad
                 )
 
@@ -320,8 +320,8 @@ class Simulation:
     def spawn_cars(self):
         """Checks each direction separately and spawns cars with independent probabilities, respecting max limits."""
         directions = [Direction.RIGHT, Direction.LEFT]
-        spawn_probability = 0.05  # 5% chance per direction
-        max_cars_per_direction = 2  # Adjust this value as needed
+        spawn_probability = 0.20  # 5% chance per direction
+        max_cars_per_direction = 5  # Adjust this value as needed
 
         # Count cars per direction
         car_counts = {direction: sum(1 for car in self.cars if car.direction == direction) for direction in directions}
